@@ -25,6 +25,7 @@ from gnuradio import qtgui
 from gnuradio.filter import firdes
 import sip
 from gnuradio import blocks
+import pmt
 from gnuradio import gr
 from gnuradio.fft import window
 import sys
@@ -41,7 +42,7 @@ import time
 
 from gnuradio import qtgui
 
-class gps_sig_recorder(gr.top_block, Qt.QWidget):
+class gps_sig_transmitter(gr.top_block, Qt.QWidget):
 
     def __init__(self):
         gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
@@ -64,7 +65,7 @@ class gps_sig_recorder(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "gps_sig_recorder")
+        self.settings = Qt.QSettings("GNU Radio", "gps_sig_transmitter")
 
         try:
             if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
@@ -80,9 +81,6 @@ class gps_sig_recorder(gr.top_block, Qt.QWidget):
         self.target_center = target_center = 1.57542e9
         self.samp_rate = samp_rate = 10e6
         self.center_freq = center_freq = target_center
-        self.amplifier = amplifier = 1
-        self.IF_LNA = IF_LNA = 40
-        self.BB_VGA = BB_VGA = 38
 
         ##################################################
         # Blocks
@@ -90,15 +88,6 @@ class gps_sig_recorder(gr.top_block, Qt.QWidget):
         self._center_freq_range = Range(target_center-10e6, target_center+10e6, 1, target_center, 200)
         self._center_freq_win = RangeWidget(self._center_freq_range, self.set_center_freq, "'center_freq'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._center_freq_win)
-        self._amplifier_range = Range(0, 1, 1, 1, 200)
-        self._amplifier_win = RangeWidget(self._amplifier_range, self.set_amplifier, "'amplifier'", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._amplifier_win)
-        self._IF_LNA_range = Range(0, 40, 1, 40, 200)
-        self._IF_LNA_win = RangeWidget(self._IF_LNA_range, self.set_IF_LNA, "'IF_LNA'", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._IF_LNA_win)
-        self._BB_VGA_range = Range(0, 60, 1, 38, 200)
-        self._BB_VGA_win = RangeWidget(self._BB_VGA_range, self.set_BB_VGA, "'BB_VGA'", "counter_slider", float, QtCore.Qt.Horizontal)
-        self.top_layout.addWidget(self._BB_VGA_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
             1024, #size
             samp_rate, #samp_rate
@@ -192,35 +181,32 @@ class gps_sig_recorder(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.osmosdr_source_0 = osmosdr.source(
-            args="numchan=" + str(1) + " " + 'hackrf=0,bias=1'
+        self.osmosdr_sink_0 = osmosdr.sink(
+            args="numchan=" + str(1) + " " + ''
         )
-        self.osmosdr_source_0.set_time_unknown_pps(osmosdr.time_spec_t())
-        self.osmosdr_source_0.set_sample_rate(samp_rate)
-        self.osmosdr_source_0.set_center_freq(center_freq, 0)
-        self.osmosdr_source_0.set_freq_corr(0, 0)
-        self.osmosdr_source_0.set_dc_offset_mode(0, 0)
-        self.osmosdr_source_0.set_iq_balance_mode(0, 0)
-        self.osmosdr_source_0.set_gain_mode(False, 0)
-        self.osmosdr_source_0.set_gain(amplifier, 0)
-        self.osmosdr_source_0.set_if_gain(IF_LNA, 0)
-        self.osmosdr_source_0.set_bb_gain(BB_VGA, 0)
-        self.osmosdr_source_0.set_antenna('', 0)
-        self.osmosdr_source_0.set_bandwidth(2.75e6, 0)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, 'E:\\raw_data_hackrf\\gps_2022_09_13.dat', False)
-        self.blocks_file_sink_0.set_unbuffered(False)
+        self.osmosdr_sink_0.set_time_unknown_pps(osmosdr.time_spec_t())
+        self.osmosdr_sink_0.set_sample_rate(samp_rate)
+        self.osmosdr_sink_0.set_center_freq(center_freq, 0)
+        self.osmosdr_sink_0.set_freq_corr(0, 0)
+        self.osmosdr_sink_0.set_gain(10, 0)
+        self.osmosdr_sink_0.set_if_gain(20, 0)
+        self.osmosdr_sink_0.set_bb_gain(20, 0)
+        self.osmosdr_sink_0.set_antenna('', 0)
+        self.osmosdr_sink_0.set_bandwidth(4.75e6, 0)
+        self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, 'E:\\raw_data_hackrf\\gps_2022_09_13.dat', True, 0, 0)
+        self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.osmosdr_source_0, 0), (self.blocks_file_sink_0, 0))
-        self.connect((self.osmosdr_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.osmosdr_source_0, 0), (self.qtgui_time_sink_x_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.osmosdr_sink_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.qtgui_time_sink_x_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "gps_sig_recorder")
+        self.settings = Qt.QSettings("GNU Radio", "gps_sig_transmitter")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -239,7 +225,7 @@ class gps_sig_recorder(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.osmosdr_source_0.set_sample_rate(self.samp_rate)
+        self.osmosdr_sink_0.set_sample_rate(self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
 
@@ -248,33 +234,12 @@ class gps_sig_recorder(gr.top_block, Qt.QWidget):
 
     def set_center_freq(self, center_freq):
         self.center_freq = center_freq
-        self.osmosdr_source_0.set_center_freq(self.center_freq, 0)
-
-    def get_amplifier(self):
-        return self.amplifier
-
-    def set_amplifier(self, amplifier):
-        self.amplifier = amplifier
-        self.osmosdr_source_0.set_gain(self.amplifier, 0)
-
-    def get_IF_LNA(self):
-        return self.IF_LNA
-
-    def set_IF_LNA(self, IF_LNA):
-        self.IF_LNA = IF_LNA
-        self.osmosdr_source_0.set_if_gain(self.IF_LNA, 0)
-
-    def get_BB_VGA(self):
-        return self.BB_VGA
-
-    def set_BB_VGA(self, BB_VGA):
-        self.BB_VGA = BB_VGA
-        self.osmosdr_source_0.set_bb_gain(self.BB_VGA, 0)
+        self.osmosdr_sink_0.set_center_freq(self.center_freq, 0)
 
 
 
 
-def main(top_block_cls=gps_sig_recorder, options=None):
+def main(top_block_cls=gps_sig_transmitter, options=None):
 
     if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
         style = gr.prefs().get_string('qtgui', 'style', 'raster')

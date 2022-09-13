@@ -11,7 +11,7 @@ options:
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: gps_sig_recorder
+    id: gps_sig_transmitter
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -33,69 +33,6 @@ options:
     state: enabled
 
 blocks:
-- name: BB_VGA
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: ''
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0'
-    step: '1'
-    stop: '60'
-    value: '38'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [144, 384.0]
-    rotation: 0
-    state: true
-- name: IF_LNA
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: ''
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0'
-    step: '1'
-    stop: '40'
-    value: '40'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [144, 264.0]
-    rotation: 0
-    state: true
-- name: amplifier
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: ''
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0'
-    step: '1'
-    stop: '1'
-    value: '1'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [144, 144.0]
-    rotation: 0
-    state: true
 - name: center_freq
   id: variable_qtgui_range
   parameters:
@@ -114,7 +51,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [448, 24.0]
+    coordinate: [480, 80.0]
     rotation: 0
     state: true
 - name: samp_rate
@@ -126,7 +63,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 12]
+    coordinate: [216, 64.0]
     rotation: 0
     state: enabled
 - name: target_center
@@ -138,29 +75,33 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [304, 16.0]
+    coordinate: [336, 72.0]
     rotation: 0
     state: enabled
-- name: blocks_file_sink_0
-  id: blocks_file_sink
+- name: blocks_file_source_0
+  id: blocks_file_source
   parameters:
     affinity: ''
     alias: ''
-    append: 'False'
+    begin_tag: pmt.PMT_NIL
     comment: ''
     file: E:\raw_data_hackrf\gps_2022_09_13.dat
+    length: '0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    repeat: 'True'
     type: complex
-    unbuffered: 'False'
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [944, 536.0]
+    coordinate: [248, 224.0]
     rotation: 0
     state: true
-- name: osmosdr_source_0
-  id: osmosdr_source
+- name: osmosdr_sink_0
+  id: osmosdr_sink
   parameters:
     affinity: ''
     alias: ''
@@ -196,8 +137,8 @@ blocks:
     ant7: ''
     ant8: ''
     ant9: ''
-    args: hackrf=0,bias=1
-    bb_gain0: BB_VGA
+    args: ''
+    bb_gain0: '20'
     bb_gain1: '20'
     bb_gain10: '20'
     bb_gain11: '20'
@@ -229,7 +170,7 @@ blocks:
     bb_gain7: '20'
     bb_gain8: '20'
     bb_gain9: '20'
-    bw0: 2.75e6
+    bw0: 4.75e6
     bw1: '0'
     bw10: '0'
     bw11: '0'
@@ -302,38 +243,6 @@ blocks:
     corr7: '0'
     corr8: '0'
     corr9: '0'
-    dc_offset_mode0: '0'
-    dc_offset_mode1: '0'
-    dc_offset_mode10: '0'
-    dc_offset_mode11: '0'
-    dc_offset_mode12: '0'
-    dc_offset_mode13: '0'
-    dc_offset_mode14: '0'
-    dc_offset_mode15: '0'
-    dc_offset_mode16: '0'
-    dc_offset_mode17: '0'
-    dc_offset_mode18: '0'
-    dc_offset_mode19: '0'
-    dc_offset_mode2: '0'
-    dc_offset_mode20: '0'
-    dc_offset_mode21: '0'
-    dc_offset_mode22: '0'
-    dc_offset_mode23: '0'
-    dc_offset_mode24: '0'
-    dc_offset_mode25: '0'
-    dc_offset_mode26: '0'
-    dc_offset_mode27: '0'
-    dc_offset_mode28: '0'
-    dc_offset_mode29: '0'
-    dc_offset_mode3: '0'
-    dc_offset_mode30: '0'
-    dc_offset_mode31: '0'
-    dc_offset_mode4: '0'
-    dc_offset_mode5: '0'
-    dc_offset_mode6: '0'
-    dc_offset_mode7: '0'
-    dc_offset_mode8: '0'
-    dc_offset_mode9: '0'
     freq0: center_freq
     freq1: 100e6
     freq10: 100e6
@@ -366,7 +275,7 @@ blocks:
     freq7: 100e6
     freq8: 100e6
     freq9: 100e6
-    gain0: amplifier
+    gain0: '10'
     gain1: '10'
     gain10: '10'
     gain11: '10'
@@ -398,39 +307,7 @@ blocks:
     gain7: '10'
     gain8: '10'
     gain9: '10'
-    gain_mode0: 'False'
-    gain_mode1: 'False'
-    gain_mode10: 'False'
-    gain_mode11: 'False'
-    gain_mode12: 'False'
-    gain_mode13: 'False'
-    gain_mode14: 'False'
-    gain_mode15: 'False'
-    gain_mode16: 'False'
-    gain_mode17: 'False'
-    gain_mode18: 'False'
-    gain_mode19: 'False'
-    gain_mode2: 'False'
-    gain_mode20: 'False'
-    gain_mode21: 'False'
-    gain_mode22: 'False'
-    gain_mode23: 'False'
-    gain_mode24: 'False'
-    gain_mode25: 'False'
-    gain_mode26: 'False'
-    gain_mode27: 'False'
-    gain_mode28: 'False'
-    gain_mode29: 'False'
-    gain_mode3: 'False'
-    gain_mode30: 'False'
-    gain_mode31: 'False'
-    gain_mode4: 'False'
-    gain_mode5: 'False'
-    gain_mode6: 'False'
-    gain_mode7: 'False'
-    gain_mode8: 'False'
-    gain_mode9: 'False'
-    if_gain0: IF_LNA
+    if_gain0: '20'
     if_gain1: '20'
     if_gain10: '20'
     if_gain11: '20'
@@ -462,38 +339,6 @@ blocks:
     if_gain7: '20'
     if_gain8: '20'
     if_gain9: '20'
-    iq_balance_mode0: '0'
-    iq_balance_mode1: '0'
-    iq_balance_mode10: '0'
-    iq_balance_mode11: '0'
-    iq_balance_mode12: '0'
-    iq_balance_mode13: '0'
-    iq_balance_mode14: '0'
-    iq_balance_mode15: '0'
-    iq_balance_mode16: '0'
-    iq_balance_mode17: '0'
-    iq_balance_mode18: '0'
-    iq_balance_mode19: '0'
-    iq_balance_mode2: '0'
-    iq_balance_mode20: '0'
-    iq_balance_mode21: '0'
-    iq_balance_mode22: '0'
-    iq_balance_mode23: '0'
-    iq_balance_mode24: '0'
-    iq_balance_mode25: '0'
-    iq_balance_mode26: '0'
-    iq_balance_mode27: '0'
-    iq_balance_mode28: '0'
-    iq_balance_mode29: '0'
-    iq_balance_mode3: '0'
-    iq_balance_mode30: '0'
-    iq_balance_mode31: '0'
-    iq_balance_mode4: '0'
-    iq_balance_mode5: '0'
-    iq_balance_mode6: '0'
-    iq_balance_mode7: '0'
-    iq_balance_mode8: '0'
-    iq_balance_mode9: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
@@ -513,7 +358,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [416, 236.0]
+    coordinate: [952, 232.0]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0
@@ -594,7 +439,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [864, 240.0]
+    coordinate: [704, 376.0]
     rotation: 0
     state: true
 - name: qtgui_time_sink_x_0
@@ -691,14 +536,14 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [864, 384.0]
+    coordinate: [704, 472.0]
     rotation: 0
     state: true
 
 connections:
-- [osmosdr_source_0, '0', blocks_file_sink_0, '0']
-- [osmosdr_source_0, '0', qtgui_freq_sink_x_0, '0']
-- [osmosdr_source_0, '0', qtgui_time_sink_x_0, '0']
+- [blocks_file_source_0, '0', osmosdr_sink_0, '0']
+- [blocks_file_source_0, '0', qtgui_freq_sink_x_0, '0']
+- [blocks_file_source_0, '0', qtgui_time_sink_x_0, '0']
 
 metadata:
   file_format: 1
