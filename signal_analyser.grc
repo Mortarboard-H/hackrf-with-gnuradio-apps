@@ -156,7 +156,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [944, 536.0]
+    coordinate: [1096, 456.0]
     rotation: 0
     state: true
 - name: osmosdr_source_0
@@ -196,7 +196,7 @@ blocks:
     ant7: ''
     ant8: ''
     ant9: ''
-    args: hackrf=0,bias=1
+    args: hackrf=1,bias=1
     bb_gain0: BB_VGA
     bb_gain1: '20'
     bb_gain10: '20'
@@ -594,7 +594,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [864, 240.0]
+    coordinate: [944, 224.0]
     rotation: 0
     state: true
 - name: qtgui_time_sink_x_0
@@ -691,7 +691,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [864, 384.0]
+    coordinate: [952, 384.0]
     rotation: 0
     state: true
 
