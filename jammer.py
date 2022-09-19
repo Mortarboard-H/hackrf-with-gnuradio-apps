@@ -33,10 +33,9 @@ import signal
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
+from gnuradio import soapy
 from gnuradio.qtgui import Range, RangeWidget
 from PyQt5 import QtCore
-import osmosdr
-import time
 
 
 
@@ -92,6 +91,19 @@ class jammer(gr.top_block, Qt.QWidget):
         self._center_freq_range = Range(target_center-10e6, target_center+10e6, 1, target_center, 200)
         self._center_freq_win = RangeWidget(self._center_freq_range, self.set_center_freq, "'center_freq'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._center_freq_win)
+        self.soapy_hackrf_sink_0 = None
+        dev = 'driver=hackrf'
+        stream_args = ''
+        tune_args = ['']
+        settings = ['']
+
+        self.soapy_hackrf_sink_0 = soapy.sink(dev, "fc32", 1, '',
+                                  stream_args, tune_args, settings)
+        self.soapy_hackrf_sink_0.set_sample_rate(0, samp_rate)
+        self.soapy_hackrf_sink_0.set_bandwidth(0, 0)
+        self.soapy_hackrf_sink_0.set_frequency(0, (center_freq+freq_bias-1000))
+        self.soapy_hackrf_sink_0.set_gain(0, 'AMP', False)
+        self.soapy_hackrf_sink_0.set_gain(0, 'VGA', min(max(20, 0.0), 47.0))
         self.qtgui_time_sink_x_0 = qtgui.time_sink_c(
             1024, #size
             samp_rate, #samp_rate
@@ -185,18 +197,6 @@ class jammer(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.osmosdr_sink_0 = osmosdr.sink(
-            args="numchan=" + str(1) + " " + ""
-        )
-        self.osmosdr_sink_0.set_time_unknown_pps(osmosdr.time_spec_t())
-        self.osmosdr_sink_0.set_sample_rate(samp_rate)
-        self.osmosdr_sink_0.set_center_freq((center_freq+freq_bias), 0)
-        self.osmosdr_sink_0.set_freq_corr(0, 0)
-        self.osmosdr_sink_0.set_gain(10, 0)
-        self.osmosdr_sink_0.set_if_gain(20, 0)
-        self.osmosdr_sink_0.set_bb_gain(20, 0)
-        self.osmosdr_sink_0.set_antenna('', 0)
-        self.osmosdr_sink_0.set_bandwidth(0, 0)
         self.blocks_file_source_0 = blocks.file_source(gr.sizeof_gr_complex*1, 'C:\\Users\\admin\\Desktop\\gnuradio applications\\data\\real_rand_10MHz_0Hz_30secfloat.bin', True, 0, 0)
         self.blocks_file_source_0.set_begin_tag(pmt.PMT_NIL)
 
@@ -204,9 +204,9 @@ class jammer(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_file_source_0, 0), (self.osmosdr_sink_0, 0))
         self.connect((self.blocks_file_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_file_source_0, 0), (self.qtgui_time_sink_x_0, 0))
+        self.connect((self.blocks_file_source_0, 0), (self.soapy_hackrf_sink_0, 0))
 
 
     def closeEvent(self, event):
@@ -229,23 +229,23 @@ class jammer(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.osmosdr_sink_0.set_sample_rate(self.samp_rate)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
+        self.soapy_hackrf_sink_0.set_sample_rate(0, self.samp_rate)
 
     def get_freq_bias(self):
         return self.freq_bias
 
     def set_freq_bias(self, freq_bias):
         self.freq_bias = freq_bias
-        self.osmosdr_sink_0.set_center_freq((self.center_freq+self.freq_bias), 0)
+        self.soapy_hackrf_sink_0.set_frequency(0, (self.center_freq+self.freq_bias-1000))
 
     def get_center_freq(self):
         return self.center_freq
 
     def set_center_freq(self, center_freq):
         self.center_freq = center_freq
-        self.osmosdr_sink_0.set_center_freq((self.center_freq+self.freq_bias), 0)
+        self.soapy_hackrf_sink_0.set_frequency(0, (self.center_freq+self.freq_bias-1000))
 
 
 

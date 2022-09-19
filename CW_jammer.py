@@ -30,10 +30,9 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
+from gnuradio import soapy
 from gnuradio.qtgui import Range, RangeWidget
 from PyQt5 import QtCore
-import osmosdr
-import time
 
 
 
@@ -89,25 +88,26 @@ class CW_jammer(gr.top_block, Qt.QWidget):
         self._center_freq_range = Range(target_center-10e6, target_center+10e6, 1, target_center, 200)
         self._center_freq_win = RangeWidget(self._center_freq_range, self.set_center_freq, "'center_freq'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._center_freq_win)
-        self.osmosdr_sink_0 = osmosdr.sink(
-            args="numchan=" + str(1) + " " + ""
-        )
-        self.osmosdr_sink_0.set_time_unknown_pps(osmosdr.time_spec_t())
-        self.osmosdr_sink_0.set_sample_rate(samp_rate)
-        self.osmosdr_sink_0.set_center_freq((center_freq+freq_bias-1000), 0)
-        self.osmosdr_sink_0.set_freq_corr(0, 0)
-        self.osmosdr_sink_0.set_gain(10, 0)
-        self.osmosdr_sink_0.set_if_gain(20, 0)
-        self.osmosdr_sink_0.set_bb_gain(20, 0)
-        self.osmosdr_sink_0.set_antenna('', 0)
-        self.osmosdr_sink_0.set_bandwidth(0, 0)
+        self.soapy_hackrf_sink_0 = None
+        dev = 'driver=hackrf'
+        stream_args = ''
+        tune_args = ['']
+        settings = ['']
+
+        self.soapy_hackrf_sink_0 = soapy.sink(dev, "fc32", 1, '',
+                                  stream_args, tune_args, settings)
+        self.soapy_hackrf_sink_0.set_sample_rate(0, samp_rate)
+        self.soapy_hackrf_sink_0.set_bandwidth(0, 0)
+        self.soapy_hackrf_sink_0.set_frequency(0, (center_freq+freq_bias-1000))
+        self.soapy_hackrf_sink_0.set_gain(0, 'AMP', False)
+        self.soapy_hackrf_sink_0.set_gain(0, 'VGA', min(max(20, 0.0), 47.0))
         self.analog_sig_source_x_0 = analog.sig_source_c(samp_rate, analog.GR_COS_WAVE, 1000, 1, 0, 0)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_sig_source_x_0, 0), (self.osmosdr_sink_0, 0))
+        self.connect((self.analog_sig_source_x_0, 0), (self.soapy_hackrf_sink_0, 0))
 
 
     def closeEvent(self, event):
@@ -131,21 +131,21 @@ class CW_jammer(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
-        self.osmosdr_sink_0.set_sample_rate(self.samp_rate)
+        self.soapy_hackrf_sink_0.set_sample_rate(0, self.samp_rate)
 
     def get_freq_bias(self):
         return self.freq_bias
 
     def set_freq_bias(self, freq_bias):
         self.freq_bias = freq_bias
-        self.osmosdr_sink_0.set_center_freq((self.center_freq+self.freq_bias-1000), 0)
+        self.soapy_hackrf_sink_0.set_frequency(0, (self.center_freq+self.freq_bias-1000))
 
     def get_center_freq(self):
         return self.center_freq
 
     def set_center_freq(self, center_freq):
         self.center_freq = center_freq
-        self.osmosdr_sink_0.set_center_freq((self.center_freq+self.freq_bias-1000), 0)
+        self.soapy_hackrf_sink_0.set_frequency(0, (self.center_freq+self.freq_bias-1000))
 
 
 
