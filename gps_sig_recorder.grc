@@ -148,7 +148,7 @@ blocks:
     alias: ''
     append: 'False'
     comment: ''
-    file: E:\raw_data_hackrf\gps_2022_09_19.dat
+    file: /home/ht/raw_bb_gps_sig/l1_2022_09_22.dat
     type: complex
     unbuffered: 'False'
     vlen: '1'
@@ -156,7 +156,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [944, 536.0]
+    coordinate: [864, 468.0]
     rotation: 0
     state: true
 - name: qtgui_freq_sink_x_0
@@ -334,7 +334,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [864, 384.0]
+    coordinate: [864, 372.0]
     rotation: 0
     state: true
 - name: soapy_hackrf_source_0
@@ -346,7 +346,7 @@ blocks:
     bandwidth: 2.75e6
     center_freq: center_freq
     comment: ''
-    dev_args: bias_tx=1,hackrf=1
+    dev_args: bias_tx=true
     gain: IF_LNA
     maxoutbuf: '0'
     minoutbuf: '0'
@@ -368,4 +368,3 @@ connections:
 
 metadata:
   file_format: 1
-  grc_version: 3.10.3.0
