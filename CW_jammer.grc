@@ -23,7 +23,6 @@ options:
     sizing_mode: fixed
     thread_safe_setters: ''
     title: Not titled yet
-    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -99,28 +98,6 @@ blocks:
     coordinate: [296, 16.0]
     rotation: 0
     state: enabled
-- name: analog_sig_source_x_0
-  id: analog_sig_source_x
-  parameters:
-    affinity: ''
-    alias: ''
-    amp: '1'
-    comment: ''
-    freq: '1000'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    offset: '0'
-    phase: '0'
-    samp_rate: samp_rate
-    type: complex
-    waveform: analog.GR_COS_WAVE
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [536, 336.0]
-    rotation: 0
-    state: true
 - name: soapy_hackrf_sink_0
   id: soapy_hackrf_sink
   parameters:
@@ -141,9 +118,7 @@ blocks:
     coordinate: [912, 424.0]
     rotation: 0
     state: true
-
-connections:
-- [analog_sig_source_x_0, '0', soapy_hackrf_sink_0, '0']
+connections: []
 
 metadata:
   file_format: 1
